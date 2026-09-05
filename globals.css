@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #0b0b0d;
+  color: #f5f4f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: #ffffff;
+  color: #0b0b0d;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 12px;
+  border-bottom-right-radius: 0;
+}
+
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  color: #f5f4f0;
+  font-size: 15px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.option-btn:hover {
+  border-color: #ffffff;
+}
+
+.option-btn.selected {
+  background: #ffffff;
+  color: #0b0b0d;
+  border-color: #ffffff;
+  font-weight: 600;
+}
+
+.field-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.4);
+  padding: 10px 4px;
+  font-size: 20px;
+  color: #f5f4f0;
+  outline: none;
+}
+
+.field-input:focus {
+  border-color: #ffffff;
+}
+
+.field-input::placeholder {
+  color: rgba(245, 244, 240, 0.35);
+}
+
+textarea.field-input {
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 15px;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.next-btn {
+  padding: 12px 28px;
+  background: #ffffff;
+  color: #0b0b0d;
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.next-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ghost-btn {
+  padding: 12px 24px;
+  background: transparent;
+  color: rgba(245, 244, 240, 0.6);
+  border: none;
+  cursor: pointer;
+}
