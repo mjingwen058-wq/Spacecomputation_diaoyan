@@ -43,6 +43,7 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState("");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selected, setSelected] = useState<Submission | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function loadSubmissions() {
     const res = await fetch("/api/admin/submissions");
@@ -78,6 +79,22 @@ export default function AdminPage() {
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthed(false);
     setSubmissions([]);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("确定要删除这条记录吗？删除后无法恢复。")) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/submissions/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setSubmissions((prev) => prev.filter((s) => s.id !== id));
+        setSelected((prev) => (prev?.id === id ? null : prev));
+      } else {
+        alert("删除失败，请重试");
+      }
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   const stats = useMemo(() => buildStats(submissions), [submissions]);
@@ -253,9 +270,19 @@ export default function AdminPage() {
                   <td style={cellStyle}>{s.email}</td>
                   <td style={cellStyle}>{s.wantsCore ? "核心意向" : "常规成员"}</td>
                   <td style={cellStyle}>
-                    <button className="ghost-btn" style={{ padding: "4px 10px" }} onClick={() => setSelected(s)}>
-                      详情
-                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button className="ghost-btn" style={{ padding: "4px 10px" }} onClick={() => setSelected(s)}>
+                        详情
+                      </button>
+                      <button
+                        className="ghost-btn"
+                        style={{ padding: "4px 10px", color: "#EB5757", borderColor: "rgba(235,87,87,0.4)" }}
+                        onClick={() => handleDelete(s.id)}
+                        disabled={deletingId === s.id}
+                      >
+                        {deletingId === s.id ? "删除中…" : "删除"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
