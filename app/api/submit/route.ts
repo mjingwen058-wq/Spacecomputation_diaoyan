@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { randomUUID } from "crypto";
+import { sql } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -37,26 +38,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "邮箱格式不正确" }, { status: 400 });
   }
 
+  const id = randomUUID();
+  const interestsA = wantsCore ? [] : strArr(body.interestsA);
+  const otherInterest = wantsCore ? null : str(body.otherInterest) || null;
+  const futureWish = wantsCore ? null : str(body.futureWish) || null;
+  const departments = wantsCore ? strArr(body.departments) : [];
+  const skills = wantsCore ? str(body.skills) || null : null;
+
   try {
-    const submission = await prisma.submission.create({
-      data: {
-        name,
-        gender,
-        major,
-        grade,
-        campus,
-        email,
-        thoughts,
-        wantsCore,
-        avatarSeed,
-        interestsA: wantsCore ? [] : strArr(body.interestsA),
-        otherInterest: wantsCore ? null : str(body.otherInterest) || null,
-        futureWish: wantsCore ? null : str(body.futureWish) || null,
-        departments: wantsCore ? strArr(body.departments) : [],
-        skills: wantsCore ? str(body.skills) || null : null,
-      },
-    });
-    return NextResponse.json({ id: submission.id, avatarSeed: submission.avatarSeed });
+    await sql`
+      INSERT INTO "Submission"
+        ("id", "name", "gender", "major", "grade", "campus", "email", "thoughts",
+         "wantsCore", "avatarSeed", "interestsA", "otherInterest", "futureWish",
+         "departments", "skills")
+      VALUES
+        (${id}, ${name}, ${gender}, ${major}, ${grade}, ${campus}, ${email}, ${thoughts},
+         ${wantsCore}, ${avatarSeed}, ${interestsA}, ${otherInterest}, ${futureWish},
+         ${departments}, ${skills})
+    `;
+    return NextResponse.json({ id, avatarSeed });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });

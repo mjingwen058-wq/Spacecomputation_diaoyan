@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -11,10 +11,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
   const { id } = params;
 
-try {
-  await prisma.submission.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
-} catch {
-  return NextResponse.json({ error: "not_found" }, { status: 404 });
-}
+  try {
+    const deleted = await sql`DELETE FROM "Submission" WHERE "id" = ${id} RETURNING "id"`;
+    if (!Array.isArray(deleted) || deleted.length === 0) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
 }
