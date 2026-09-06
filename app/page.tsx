@@ -453,9 +453,16 @@ function ThanksScreen({ seed, name }: { seed: string; name?: string }) {
           fontSize: 22,
           fontWeight: 700,
           marginBottom: 14,
+          lineHeight: 1.6,
         }}
       >
-        这是属于{name ? ` ${name} ` : "你"}的专属像素小人
+        <div>这是属于</div>
+        <div style={{ margin: "6px 0" }}>
+          <span style={{ borderBottom: "2px solid #ffffff", paddingBottom: 3 }}>
+            {name || "你"}
+          </span>
+        </div>
+        <div>的专属像素小人</div>
       </h2>
       <p style={{ fontSize: 15, lineHeight: 1.8, opacity: 0.75 }}>
         感谢你认真填写问卷。我们已经收到你的信息，后续的招新进度、成员分组及活动安排，我们将通过邮件统一回复，请留意查收收件箱。期待与你在线上线下相遇！
