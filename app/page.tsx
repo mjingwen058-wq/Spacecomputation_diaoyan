@@ -15,8 +15,6 @@ import { randomSeed } from "@/lib/pixelAvatar";
 
 type View = "intro" | "question" | "submitting" | "thanks" | "error";
 
-const CORE_YES_LABEL = CORE_OPTIONS[1].label;
-
 export default function Home() {
   const [view, setView] = useState<View>("intro");
   const [stepIndex, setStepIndex] = useState(0);
@@ -24,7 +22,8 @@ export default function Home() {
   const [avatarSeed, setAvatarSeed] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const isCore = answers.wantsCore === CORE_YES_LABEL;
+  const isCore =
+    CORE_OPTIONS.find((o) => o.label === answers.wantsCore)?.isCore ?? false;
   const branchSteps = isCore ? BRANCH_B : BRANCH_A;
   const steps: Step[] = useMemo(
     () => [...PART1, ...branchSteps],
@@ -78,15 +77,16 @@ export default function Home() {
       email: answers.email ?? "",
       thoughts: answers.thoughts ?? "",
       wantsCore: isCore,
+      engagementChoice: answers.wantsCore ?? "",
       avatarSeed: seed,
     };
 
     if (isCore) {
-      payload.departments = answers.departments ?? [];
       payload.skills = answers.skills ?? "";
+      payload.learnOrInitiate = answers.learnOrInitiate ?? "";
+      payload.pace = answers.pace ?? "";
     } else {
       payload.interestsA = answers.interestsA ?? [];
-      payload.otherInterest = answers.otherInterest ?? "";
       payload.futureWish = answers.futureWish ?? "";
     }
 
@@ -175,7 +175,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
           letterSpacing: "0.01em",
         }}
       >
-        新学期招新 & 核心成员招募
+        新学期招新
       </h1>
       <p style={{ opacity: 0.6, fontSize: 14, marginBottom: 28 }}>
         SCAA 空间计算研究所
