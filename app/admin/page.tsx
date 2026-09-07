@@ -27,11 +27,12 @@ interface Submission {
   email: string;
   thoughts: string;
   wantsCore: boolean;
+  engagementChoice: string;
   interestsA: string[];
-  otherInterest: string | null;
   futureWish: string | null;
-  departments: string[];
   skills: string | null;
+  learnOrInitiate: string | null;
+  pace: string | null;
   avatarSeed: string;
 }
 
@@ -219,7 +220,7 @@ export default function AdminPage() {
             </ResponsiveContainer>
           </ChartCard>
 
-          <ChartCard title="常规成员 · 感兴趣方向">
+          <ChartCard title="常规参与 · 感兴趣方向">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={stats.interestData} layout="vertical" margin={{ left: 8 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" horizontal={false} />
@@ -231,9 +232,9 @@ export default function AdminPage() {
             </ResponsiveContainer>
           </ChartCard>
 
-          <ChartCard title="核心成员 · 意向部门">
+          <ChartCard title="深度参与意向 · 参与节奏">
             <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={stats.deptData} layout="vertical" margin={{ left: 8 }}>
+              <BarChart data={stats.paceData} layout="vertical" margin={{ left: 8 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" horizontal={false} />
                 <XAxis type="number" stroke="rgba(255,255,255,0.4)" allowDecimals={false} />
                 <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.6)" width={160} fontSize={11} />
@@ -268,7 +269,7 @@ export default function AdminPage() {
                   <td style={cellStyle}>{s.grade}</td>
                   <td style={cellStyle}>{s.campus}</td>
                   <td style={cellStyle}>{s.email}</td>
-                  <td style={cellStyle}>{s.wantsCore ? "核心意向" : "常规成员"}</td>
+                  <td style={cellStyle}>{s.wantsCore ? "深度参与意向" : "常规参与"}</td>
                   <td style={cellStyle}>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button className="ghost-btn" style={{ padding: "4px 10px" }} onClick={() => setSelected(s)}>
@@ -308,8 +309,8 @@ export default function AdminPage() {
 function SummaryRow({ stats }: { stats: ReturnType<typeof buildStats> }) {
   const items = [
     { label: "总提交数", value: stats.total },
-    { label: "核心成员意向", value: stats.coreCount },
-    { label: "常规成员", value: stats.total - stats.coreCount },
+    { label: "深度参与意向", value: stats.coreCount },
+    { label: "常规参与", value: stats.total - stats.coreCount },
   ];
   return (
     <div style={{ display: "flex", gap: 16 }}>
@@ -384,18 +385,18 @@ function DetailModal({ submission, onClose }: { submission: Submission; onClose:
         <DetailRow label="年级">{submission.grade}</DetailRow>
         <DetailRow label="校区">{submission.campus}</DetailRow>
         <DetailRow label="看法与期待">{submission.thoughts}</DetailRow>
-        <DetailRow label="类型">{submission.wantsCore ? "核心成员意向" : "常规成员"}</DetailRow>
+        <DetailRow label="类型">
+          {submission.wantsCore ? "深度参与意向" : "常规参与"}（原始选项：{submission.engagementChoice}）
+        </DetailRow>
         {submission.wantsCore ? (
           <>
-            <DetailRow label="意向部门（按心仪顺序）">
-              {submission.departments.map((d, i) => `${i + 1}.${d}`).join(" > ") || "—"}
-            </DetailRow>
             <DetailRow label="特长/经验">{submission.skills || "—"}</DetailRow>
+            <DetailRow label="想学习 / 想发起主导的事">{submission.learnOrInitiate || "—"}</DetailRow>
+            <DetailRow label="参与节奏">{submission.pace || "—"}</DetailRow>
           </>
         ) : (
           <>
             <DetailRow label="感兴趣方向">{submission.interestsA.join("、") || "—"}</DetailRow>
-            <DetailRow label="其他方向">{submission.otherInterest || "—"}</DetailRow>
             <DetailRow label="未来希望内容">{submission.futureWish || "—"}</DetailRow>
           </>
         )}
@@ -432,7 +433,7 @@ function buildStats(submissions: Submission[]) {
   const gradeCount = new Map<string, number>();
   const campusCount = new Map<string, number>();
   const interestCount = new Map<string, number>();
-  const deptCount = new Map<string, number>();
+  const paceCount = new Map<string, number>();
 
   for (const s of submissions) {
     genderCount.set(s.gender, (genderCount.get(s.gender) ?? 0) + 1);
@@ -441,8 +442,8 @@ function buildStats(submissions: Submission[]) {
     for (const i of s.interestsA ?? []) {
       interestCount.set(i, (interestCount.get(i) ?? 0) + 1);
     }
-    for (const d of s.departments ?? []) {
-      deptCount.set(d, (deptCount.get(d) ?? 0) + 1);
+    if (s.pace) {
+      paceCount.set(s.pace, (paceCount.get(s.pace) ?? 0) + 1);
     }
   }
 
@@ -456,7 +457,7 @@ function buildStats(submissions: Submission[]) {
     gradeData: toArr(gradeCount),
     campusData: toArr(campusCount),
     interestData: toArr(interestCount).map((d) => ({ ...d, name: shorten(d.name) })),
-    deptData: toArr(deptCount),
+    paceData: toArr(paceCount).map((d) => ({ ...d, name: shorten(d.name) })),
   };
 }
 
