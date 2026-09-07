@@ -4,11 +4,9 @@ import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-function csvCell(v: unknown, key?: string): string {
+function csvCell(v: unknown): string {
   let s: string;
-  if (key === "departments" && Array.isArray(v)) {
-    s = v.map((d, i) => `${i + 1}.${d}`).join(" > ");
-  } else if (Array.isArray(v)) s = v.join("; ");
+  if (Array.isArray(v)) s = v.join("; ");
   else if (v === null || v === undefined) s = "";
   else if (v instanceof Date) s = v.toISOString();
   else s = String(v);
@@ -28,12 +26,13 @@ const COLUMNS: Array<[string, string]> = [
   ["campus", "校区"],
   ["email", "邮箱"],
   ["thoughts", "看法与期待"],
-  ["wantsCore", "是否想加入核心团队"],
+  ["wantsCore", "是否想深度参与"],
+  ["engagementChoice", "参与意愿原始选项"],
   ["interestsA", "感兴趣的方向"],
-  ["otherInterest", "其他方向"],
   ["futureWish", "未来希望的内容"],
-  ["departments", "意向部门（按排序）"],
   ["skills", "特长/经验"],
+  ["learnOrInitiate", "想学习/想发起的事"],
+  ["pace", "参与节奏"],
 ];
 
 export async function GET(req: NextRequest) {
@@ -44,17 +43,17 @@ export async function GET(req: NextRequest) {
 
   const submissions = await sql`
     SELECT "id", "createdAt", "name", "gender", "major", "grade", "campus", "email",
-           "thoughts", "wantsCore", "interestsA", "otherInterest", "futureWish",
-           "departments", "skills", "avatarSeed"
+           "thoughts", "wantsCore", "engagementChoice", "interestsA", "futureWish",
+           "skills", "learnOrInitiate", "pace", "avatarSeed"
     FROM "Submission"
     ORDER BY "createdAt" DESC
   `;
 
   const header = COLUMNS.map(([, label]) => csvCell(label)).join(",");
   const rows = submissions.map((s) =>
-    COLUMNS.map(([key]) => csvCell((s as any)[key], key)).join(","),
+    COLUMNS.map(([key]) => csvCell((s as any)[key])).join(","),
   );
-  const csv = "﻿" + [header, ...rows].join("\n");
+  const csv = "" + [header, ...rows].join("\n");
 
   return new NextResponse(csv, {
     headers: {
