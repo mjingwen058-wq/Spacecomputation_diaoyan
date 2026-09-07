@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
 
   const submissions = await sql`
     SELECT "id", "createdAt", "name", "gender", "major", "grade", "campus", "email",
-           "thoughts", "wantsCore", "interestsA", "otherInterest", "futureWish",
-           "departments", "skills", "avatarSeed"
+           "thoughts", "wantsCore", "engagementChoice", "interestsA", "futureWish",
+           "skills", "learnOrInitiate", "pace", "avatarSeed"
     FROM "Submission"
     ORDER BY "createdAt" DESC
   `;
